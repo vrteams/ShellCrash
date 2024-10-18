@@ -20,9 +20,10 @@ on:
         required: false
         type: string
       tag5:
-        description: 'build tags'
+        description: 'build tags, default: ,with_ech,with_grpc,with_utls,with_reality_server,with_clash_api'
         required: false
         type: string
+        default: ',with_ech,with_grpc,with_utls,with_reality_server,with_clash_api'
   workflow_call:
     inputs:
       tag1:
@@ -124,11 +125,11 @@ jobs:
           - name: linux-mipsel-hardfloat
             goos: linux
             goarch: mipsle
-            gomips: hardfloat   
+            gomips: hardfloat
 
       fail-fast: false
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - go
       - sing-box
     env:
@@ -148,12 +149,12 @@ jobs:
           repository: ${{ inputs.tag1 }}
           ref: ${{ inputs.tag2 }}
           fetch-depth: 1
-          
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{needs.go.outputs.version}}
-          
+
       - name: checkout sing repository
         if: ${{ env.REPO == 'PuerNya/sing-box' }}
         uses: actions/checkout@v4.1.1
@@ -161,23 +162,23 @@ jobs:
           ref: building
           path: sing
           repository: PuerNya/sing
-          
+
       - name: build core
         id: build
         run: go build -v -trimpath -ldflags "-X 'github.com/sagernet/sing-box/constant.Version=${VERSION}' -s -w -buildid=" -tags "${TAGS}" ./cmd/sing-box
-        
+
       - name: Upload file to workspace
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
           path: sing-box
-          
+
   push_to_git:
-    needs: 
+    needs:
       - cross
       - sing-box
     runs-on: ubuntu-latest
-    env: 
+    env:
       RELEASE: ${{ inputs.tag3 }}
       PUSHDIR: ${{ inputs.tag4 }}
       VERSION: ${{needs.sing-box.outputs.version}}
@@ -187,14 +188,14 @@ jobs:
         with:
           repository: juewuy/ShellCrash
           fetch-depth: 1
-          
+
       - name: Download file from workspace
         uses: actions/download-artifact@v4
         with:
           path: ./tmp
-          
+
       - name: Zip core by tar
-        run: |      
+        run: |
           for arch in amd64 armv5 armv7 arm64 mips-softfloat mipsel-hardfloat mipsel-softfloat;do
             mv -f ./tmp/linux-${arch}/sing-box ./tmp/CrashCore
             chmod +x ./tmp/CrashCore
@@ -235,4 +236,4 @@ jobs:
         uses: Mattraks/delete-workflow-runs@main
         with:
           retain_days: 1
-          keep_minimum_runs: 2    
+          keep_minimum_runs: 2
