@@ -183,8 +183,6 @@ jobs:
             chmod +x ./tmp/CrashCore
             tar --no-same-owner -zcvf ./tmp/singbox-linux-${arch}.tar.gz -C ./tmp CrashCore
           done
-          mv -f ./tmp/singbox-linux-mipsel-hardfloat.tar.gz ./tmp/singbox-linux-mipsle-hardfloat.tar.gz
-          mv -f ./tmp/singbox-linux-mipsel-softfloat.tar.gz ./tmp/singbox-linux-mipsle-softfloat.tar.gz
           echo ${VERSION} > ./tmp/version
 
       - name: Commit and push
