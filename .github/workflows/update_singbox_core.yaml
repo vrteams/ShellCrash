@@ -24,7 +24,7 @@ on:
         description: 'build tags, default: ,with_ech,with_grpc,with_utls,with_reality_server,with_clash_api'
         required: false
         type: string
-        default: ',with_ech,with_quic,with_utls,with_reality_server,with_clash_api'
+        default: ',with_quic,with_utls,with_clash_api'
   workflow_call:
     inputs:
       tag1:
