@@ -4,27 +4,31 @@ on:
   workflow_dispatch:
     inputs:
       tag1:
-        description: 'project name of sing-box, such as SagerNet/sing-box'
+        description: "project name of sing-box, such as SagerNet/sing-box"
         required: true
         type: string
-        default: 'SagerNet/sing-box'
+        default: "SagerNet/sing-box"
       tag2:
-        description: 'version of sing-box, such as v1.7.8'
+        description: "version of sing-box, such as v1.7.8"
         required: true
         type: string
       tag3:
-        description: 'a new prerelease name (such as singbox_core_178) or only upload-artifact'
+        description: "a new prerelease name (such as singbox_core_178) or only upload-artifact"
         required: false
         type: string
       tag4:
-        description: 'git push as crashcore (such as singbox or singboxp) or only upload-artifact'
+        description: "git push as crashcore (such as singbox or singboxp) or only upload-artifact"
         required: false
         type: string
       tag5:
-        description: 'build tags, default: ,with_ech,with_grpc,with_utls,with_reality_server,with_clash_api'
+        description: "build tags, default: ,with_ech,with_grpc,with_utls,with_reality_server,with_clash_api"
         required: false
         type: string
-        default: ',with_quic,with_utls,with_clash_api,with_gvisor'
+        default: ",with_quic,with_utls,with_clash_api,with_gvisor"
+      tag6:
+        description: "commit id for checkout (optional, if not set will use tag2 as ref)"
+        required: false
+        type: string
   workflow_call:
     inputs:
       tag1:
@@ -42,6 +46,9 @@ on:
       tag5:
         required: false
         type: string
+      tag6:
+        required: false
+        type: string
 
 jobs:
   go:
@@ -53,7 +60,7 @@ jobs:
         id: go
         run: |
           echo version=$(curl -s https://raw.githubusercontent.com/actions/go-versions/update-versions-manifest-file/versions-manifest.json | grep -oE '"version": "[0-9]{1}.[0-9]{1,}(.[0-9]{1,})?"' | head -1 | cut -d':' -f2 | sed 's/ //g; s/"//g') >> $GITHUB_OUTPUT
-  
+
   sing-box:
     runs-on: ubuntu-latest
     needs: go
@@ -67,7 +74,7 @@ jobs:
       - uses: actions/checkout@v4.1.1
         with:
           repository: ${{ inputs.tag1 }}
-          ref: ${{ inputs.tag2 }}
+          ref: ${{ inputs.tag6 != '' && inputs.tag6 || inputs.tag2 }}
           fetch-depth: 0
 
       - name: setup go
@@ -129,7 +136,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
           repository: ${{ inputs.tag1 }}
-          ref: ${{ inputs.tag2 }}
+          ref: ${{ inputs.tag6 != '' && inputs.tag6 || inputs.tag2 }}
           fetch-depth: 1
 
       - name: Setup Go
@@ -198,7 +205,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com" && git config --global user.name "github-actions[bot]"
           git add . && git commit -m "更新${crashcore}内核至${VERSION}" || exit 0
           git push
-          
+
       - name: Create Release and Upload Release Asset
         if: ${{ env.RELEASE != '' && env.PUSHDIR == '' }}
         uses: softprops/action-gh-release@v1
@@ -211,7 +218,7 @@ jobs:
           files: |
             ./tmp/singbox*.tar.gz
             ./tmp/version
-            
+
       - name: Cleanup Workflow
         uses: Mattraks/delete-workflow-runs@main
         with:
