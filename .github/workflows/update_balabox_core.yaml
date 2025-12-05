@@ -85,7 +85,7 @@ jobs:
       - name: get sing-box version
         id: sing-box
         run: |
-          git remote add sekai https://github.com/SagerNet/sing-box.git
+          git remote add sekai https://github.com/vrteams/bala-box.git
           git fetch --tags sekai
           version=$(CGO_ENABLED=0 go run ./cmd/internal/read_tag)
           [ -z "$version" ] &&  version=${{ inputs.tag2 }}
@@ -144,22 +144,6 @@ jobs:
         with:
           go-version: ${{needs.go.outputs.version}}
 
-      - name: checkout sing repository
-        if: ${{ env.REPO == 'PuerNya/sing-box' }}
-        uses: actions/checkout@v4.1.1
-        with:
-          ref: building
-          path: sing
-          repository: PuerNya/sing
-      
-      - name: checkout sing repository
-        if: ${{ env.REPO == 'vrteams/bala-box' }}
-        uses: actions/checkout@v4.1.1
-        with:
-          ref: building
-          path: sing
-          repository: vrteams/bala-box
-
       - name: build core
         id: build
         run: go build -v -trimpath -ldflags "-X 'github.com/sagernet/sing-box/constant.Version=${VERSION}' -s -w -buildid=" -tags "${TAGS}" ./cmd/sing-box
@@ -205,7 +189,6 @@ jobs:
         run: |
           [ "${{ inputs.tag1 }}" = SagerNet/sing-box ] && crashcore='singbox'
           [ "${{ inputs.tag1 }}" = PuerNya/sing-box ] && crashcore='singboxp'
-          [ "${{ inputs.tag1 }}" = vrteams/bala-box ] && crashcore='singboxp'
           mkdir -p ./bin/${crashcore}
           rm -fr ./bin/${crashcore}/*
           mv -f ./tmp/singbox-linux-*.tar.gz ./bin/${crashcore}/
