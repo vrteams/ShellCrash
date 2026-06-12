@@ -161,7 +161,7 @@ jobs:
         with:
           name: ${{ matrix.name }}
           path: sing-box
-          retention-days: 1
+          retention-days: 3
 
   push_to_git:
     needs:
